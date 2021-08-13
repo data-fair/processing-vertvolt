@@ -64,7 +64,7 @@ module.exports = async (dir, log) => {
           ...values,
           ...base
         }
-        dataWriteStream.write(datasetSchema.map(f => fields[f.key] ? `"${(fields[f.key] + '')}"` : '').join(';') + endOfLine)
+        dataWriteStream.write(datasetSchema.map(f => fields[f.key] ? `"${(fields[f.key] + '')}"` : '').join(',') + endOfLine)
       }
     }
   }
