@@ -1,0 +1,84 @@
+[
+  {
+    "key": "nom_fournisseur",
+    "type": "string",
+    "title": "Nom du fournisseur"
+  },
+  {
+    "key": "nom_offre",
+    "type": "string",
+    "x-refersTo": "http://www.w3.org/2000/01/rdf-schema#label",
+    "title": "Nom de l'offre"
+  },
+  {
+    "key": "niveau_labelisation",
+    "type": "string",
+    "title": "Niveau de labélisation"
+  },
+  {
+    "key": "statut_offre",
+    "type": "string",
+    "title": "Statut de l'offre"
+  },
+  {
+    "key": "Recours_ARENH_fournisseur",
+    "type": "string",
+    "title": "Recours ARENH par le fournisseur"
+  },
+  {
+    "key": "clients_offre_labelisee",
+    "type": "number",
+    "title": "Part clients offre labélisée",
+    "description": "Part des clients du fournisseur ayant souscrit à une offre labélisée"
+  },
+  {
+    "key": "part_sans_soutien_public_offre",
+    "type": "number",
+    "title": "Part production sans soutien public",
+    "description": "Part de l'électricité provenant d'installations construites récemment sans soutien public"
+  },
+  {
+    "key": "part_gouvernance_partagee_offre",
+    "type": "number",
+    "title": "Part production gouvernance partagée",
+    "description": "Part de l'électricité provenant d'installations sous gouvernance partagée"
+  },
+  {
+    "key": "couverture_demi_horaire_offre",
+    "type": "number",
+    "title": "Taux moyen de couverture demi-horaire"
+  },
+  {
+    "key": "part_suivi_consommation_offre",
+    "type": "number",
+    "title": "Part client suivi consommation activé",
+    "description": "Part des clients de l'offre ayant activé le suivi de consommation"
+  },
+  {
+    "key": "region",
+    "type": "string",
+    "title": "Région"
+  },
+  {
+    "key": "technologie",
+    "type": "string",
+    "title": "Technologie"
+  },
+  {
+    "key": "mwh_offre",
+    "type": "number",
+    "title": "MW produits"
+  },
+  {
+    "key": "mwh_sans_soutien_public",
+    "type": "number",
+    "title": "mMW sans soutien public",
+    "description": "MWh - Installation construite récemment sans soutien public"
+  },
+  {
+    "key": "mwh_gouvernance_partagee",
+    "type": "number",
+    "title": "Date de fin",
+    "description": "MWh - Installations sous gouvernance partagée"
+  }
+]
