@@ -22,7 +22,7 @@
   },
   {
     "key": "Recours_ARENH_fournisseur",
-    "type": "string",
+    "type": "boolean",
     "title": "Recours ARENH par le fournisseur"
   },
   {
@@ -65,20 +65,20 @@
     "title": "Technologie"
   },
   {
-    "key": "mwh_offre",
+    "key": "part_offre",
     "type": "number",
-    "title": "MW produits"
+    "title": "Part offre"
   },
   {
-    "key": "mwh_sans_soutien_public",
+    "key": "part_sans_soutien_public",
     "type": "number",
-    "title": "mMW sans soutien public",
+    "title": "Part sans soutien public",
     "description": "MWh - Installation construite récemment sans soutien public"
   },
   {
-    "key": "mwh_gouvernance_partagee",
+    "key": "part_gouvernance_partagee",
     "type": "number",
-    "title": "Date de fin",
+    "title": "Part gouvernance partagée",
     "description": "MWh - Installations sous gouvernance partagée"
   }
 ]

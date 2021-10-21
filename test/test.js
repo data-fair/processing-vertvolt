@@ -5,7 +5,7 @@ const axios = require('axios')
 const chalk = require('chalk')
 const moment = require('moment')
 const assert = require('assert').strict
-const franceContours = require('../')
+const processing = require('../')
 
 describe('VertVolt processing', () => {
   it('should expose a processing config schema for users', async () => {
@@ -51,7 +51,7 @@ describe('VertVolt processing', () => {
     process.chdir('test/data/')
     console.log(process.cwd())
 
-    await franceContours.run({ pluginConfig: {}, processingConfig, dir: path.resolve('./'), axios, log, patchConfig })
+    await processing.run({ pluginConfig: {}, processingConfig, dir: path.resolve('./'), axios, log, patchConfig })
     process.chdir(cwd)
   })
 })

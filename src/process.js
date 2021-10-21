@@ -34,7 +34,7 @@ module.exports = async (dir, log) => {
       const region = regData.shift()
       mwh[region] = {}
       for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]] = { mwh_offre: regData[i] }
+        mwh[region][technos[i]] = { part_offre: regData[i] }
       }
     }
     data.splice(0, 7)
@@ -43,7 +43,7 @@ module.exports = async (dir, log) => {
     for (const regData of regions) {
       const region = regData.shift()
       for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]].mwh_sans_soutien_public = regData[i]
+        mwh[region][technos[i]].part_sans_soutien_public = regData[i]
       }
     }
     data.splice(0, 5)
@@ -52,7 +52,7 @@ module.exports = async (dir, log) => {
     for (const regData of regions) {
       const region = regData.shift()
       for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]].mwh_gouvernance_partagee = regData[i]
+        mwh[region][technos[i]].part_gouvernance_partagee = regData[i]
       }
     }
     console.log(mwh)
@@ -64,7 +64,7 @@ module.exports = async (dir, log) => {
           ...values,
           ...base
         }
-        dataWriteStream.write(datasetSchema.map(f => fields[f.key] ? `"${(fields[f.key] + '')}"` : '').join(',') + endOfLine)
+        dataWriteStream.write(datasetSchema.map(f => (fields[f.key] !== null && fields[f.key] !== undefined) ? `"${(fields[f.key] + '')}"` : '').join(',') + endOfLine)
       }
     }
   }
