@@ -1,6 +1,6 @@
 {
   "name": "@data-fair/processing-vertvolt",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Process VertVolt xlsx files to generate a dataset.",
   "main": "index.js",
   "scripts": {
