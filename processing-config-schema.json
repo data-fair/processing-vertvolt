@@ -39,11 +39,6 @@
   },{
     "title": "Paramètres",
     "properties": {
-      "clearFiles": {
-        "title": "supprimer les fichiers téléchargés",
-        "type": "boolean",
-        "default": true
-      },
       "skipUpload": {
         "title": "ne pas charger les jeux de données",
         "type": "boolean",

@@ -11,6 +11,6 @@
         "password": {"type": "string", "title": "Mot de passe", "x-props": {"type": "password"}}
       }
     },
-    "folder": {"type": "string", "title": "Répertoire contenant les fichiers"}
+    "folder": {"type": "string", "title": "Répertoire contenant les fichiers", "default": "/ftp/Vertvolt"}
   }
 }

@@ -1,11 +1,9 @@
-const fs = require('fs-extra')
 const download = require('./src/download')
 const processData = require('./src/process')
-const update = require('./src/update')
+const upload = require('./src/upload')
 
-exports.run = async ({ pluginConfig, processingConfig, dir, axios, log, patchConfig }) => {
-  // await download(pluginConfig, dir, log)
-  await processData(dir, log)
-  // if (!processingConfig.skipUpload) await update(processingConfig, dir, axios, log, patchConfig)
-  // if (processingConfig.clearFiles) await fs.emptyDir(dir)
+exports.run = async ({ pluginConfig, processingConfig, tmpDir, axios, log, patchConfig }) => {
+  await download(pluginConfig, tmpDir, log)
+  await processData(tmpDir, log)
+  if (!processingConfig.skipUpload) await upload(processingConfig, tmpDir, axios, log, patchConfig)
 }
