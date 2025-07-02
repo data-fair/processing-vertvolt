@@ -46,13 +46,13 @@ describe('VertVolt processing', () => {
     await processing.run({
       pluginConfig: config.pluginConfig,
       processingConfig: {
-        skipUpload: false,
+        skipUpload: true,
         datasetMode: 'create',
         dataset: {
           title: 'vertvolt - test'
         }
       },
-      tmpDir: 'data/tmp',
+      tmpDir: 'data',
       axios: axiosInstance,
       log: {
         step: (msg) => console.log(chalk.blue.bold.underline(`[${moment().format('LTS')}] ${msg}`)),

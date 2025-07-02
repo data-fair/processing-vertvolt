@@ -11,6 +11,12 @@
     "title": "Nom de l'offre"
   },
   {
+    "key": "url_offre",
+    "type": "string",
+    "x-refersTo": "https://schema.org/WebPage",
+    "title": "URL de l'offre"
+  },
+  {
     "key": "niveau_labelisation",
     "type": "string",
     "title": "Niveau de labélisation"

@@ -18,6 +18,7 @@ module.exports = async (tmpDir, log) => {
     const base = {
       nom_fournisseur: infos[0],
       nom_offre: infos[1],
+      url_offre: data[0][1],
       niveau_labelisation: infos[2],
       statut_offre: infos[3],
       Recours_ARENH_fournisseur: infos[4],
