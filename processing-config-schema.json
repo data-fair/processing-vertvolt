@@ -1,49 +1,66 @@
 {
+  "$id": "https://github.com/data-fair/processing-vertvolt/processing-config",
   "type": "object",
-  "x-display": "tabs",
+  "title": "ProcessingConfig",
+  "layout": "tabs",
   "required": ["datasetMode"],
-  "allOf": [{
-    "title": "Jeu de données",
-    "oneOf": [{
-      "title": "Créer un jeu de données",
-      "required": ["dataset"],
-      "properties": {
-        "datasetMode": { "type": "string", "const": "create", "title": "Action" },
+  "allOf": [
+    {
+      "title": "Jeu de données",
+      "default": {
+        "datasetMode": "create",
         "dataset": {
-          "type": "object",
-          "required": ["title"],
-          "properties": {
-            "id": {"type": "string", "title": "Identifiant (laissez vide pour calculer un identifiant à partir du titre)"},
-            "title": {"type": "string", "title": "Titre", "default": "VertVolt"}
+          "title": "VertVolt"
+        }
+      },
+      "oneOf": [{
+        "title": "Créer un jeu de données",
+        "required": ["dataset"],
+        "properties": {
+          "datasetMode": { "type": "string", "const": "create", "title": "Action" },
+          "dataset": {
+            "type": "object",
+            "required": ["title"],
+            "properties": {
+              "title": {"type": "string", "title": "Titre", "default": "VertVolt"}
+            }
           }
         }
-      }
-    }, {
-      "title": "Mettre à jour un jeu de données",
-      "required": ["dataset"],
-      "properties": {
-        "datasetMode": { "type": "string", "const": "update" },
-        "dataset": {
-          "type": "object",
-          "x-fromUrl": "{context.dataFairUrl}/api/v1/datasets?q={q}&select=id,title&{context.ownerFilter}",
-          "x-itemsProp": "results",
-          "x-itemTitle": "title",
-          "x-itemKey": "id",
-          "properties": {
-            "id": {"type": "string", "title": "Identifiant"},
-            "title": {"type": "string", "title": "Titre"}
+      }, {
+        "title": "Mettre à jour un jeu de données",
+        "required": ["dataset"],
+        "properties": {
+          "datasetMode": { "type": "string", "const": "update" },
+          "dataset": {
+            "type": "object",
+            "title": "Jeu de données",
+            "properties": {
+              "id": {"type": "string", "title": "Identifiant"},
+              "title": {"type": "string", "title": "Titre"}
+            },
+            "layout": {
+              "getItems": {
+                "url": "${context.dataFairUrl}/api/v1/datasets?select=id,title&${context.ownerFilter}&raw=true",
+                "qSearchParam": "q",
+                "itemsResults": "results",
+                "itemTitle": "item.title",
+                "itemKey": "item.id"
+              }
+            }
           }
         }
-      }
-    }]
-  },{
-    "title": "Paramètres",
-    "properties": {
-      "skipUpload": {
-        "title": "ne pas charger les jeux de données",
-        "type": "boolean",
-        "default": false
+      }]
+    },
+    {
+      "title": "Paramètres",
+      "properties": {
+        "skipUpload": {
+          "title": "Ne pas charger les jeux de données",
+          "type": "boolean",
+          "default": false,
+          "description": "Utile pour le debug - télécharge et traite les fichiers sans les uploader"
+        }
       }
     }
-  }]
+  ]
 }

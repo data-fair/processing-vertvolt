@@ -1,16 +1,52 @@
 {
+  "$id": "https://github.com/data-fair/processing-vertvolt/plugin-config",
   "type": "object",
+  "title": "PluginConfig",
+  "required": ["protocol", "host", "username"],
   "properties": {
-    "ftpOptions": {
-      "type": "object",
-      "title": "Connexion au ftp",
-      "properties": {
-        "host": { "type": "string", "title": "Hôte"},
-        "port": {"type": "number", "title": "Port", "default": 21},
-        "user": {"type": "string", "title": "Utilisateur"},
-        "password": {"type": "string", "title": "Mot de passe", "x-props": {"type": "password"}}
+    "protocol": {
+      "type": "string",
+      "title": "Protocole",
+      "enum": ["ftp", "sftp"],
+      "default": "ftp"
+    },
+    "host": {
+      "type": "string",
+      "title": "Hôte"
+    },
+    "port": {
+      "type": "number",
+      "title": "Port",
+      "description": "Par défaut 21 pour FTP, 22 pour SFTP"
+    },
+    "username": {
+      "type": "string",
+      "title": "Utilisateur",
+      "layout": {
+        "props": {
+          "autocomplete": "suppress"
+        }
       }
     },
-    "folder": {"type": "string", "title": "Répertoire contenant les fichiers", "default": "/ftp/Vertvolt"}
+    "password": {
+      "type": "string",
+      "title": "Mot de passe",
+      "layout": {
+        "props": {
+          "type": "password",
+          "autocomplete": "suppress"
+        }
+      }
+    },
+    "sshKey": {
+      "type": "string",
+      "title": "Clé SSH privée (SFTP uniquement)",
+      "layout": "textarea"
+    },
+    "folder": {
+      "type": "string",
+      "title": "Répertoire contenant les fichiers",
+      "default": "/ftp/Vertvolt"
+    }
   }
 }
