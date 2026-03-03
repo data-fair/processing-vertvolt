@@ -3,7 +3,6 @@
   "type": "object",
   "title": "PluginConfig",
   "layout": { "title": null },
-  "required": ["url", "username"],
   "properties": {
     "url": {
       "type": "string",

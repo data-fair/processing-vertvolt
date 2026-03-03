@@ -28,9 +28,9 @@ export const run = async (context: ProcessingContext<ProcessingConfig>): Promise
 
 const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promise<void> => {
   const config = pluginConfig as PluginConfig
+  if (!config.url) throw new Error('L\'URL du serveur FTP/SFTP doit être fournie dans la configuration du plugin')
 
-  const folderUrl = config.url
-  const parsed = new URL(folderUrl)
+  const parsed = new URL(config.url)
   const credentials = {
     username: config.username,
     password: config.password,
@@ -39,11 +39,11 @@ const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promi
 
   const protocol = parsed.protocol.replace(':', '').toUpperCase()
   await log.step(`Téléchargement des fichiers depuis le serveur ${protocol}`)
-  await log.info(`URL : ${folderUrl}`)
+  await log.info(`URL : ${config.url}`)
 
   await log.info(`Récupération de la liste des fichiers dans le répertoire ${parsed.pathname}`)
 
-  const fileNames = await listFiles(folderUrl, credentials)
+  const fileNames = await listFiles(config.url, credentials)
 
   await log.info(`${fileNames.length} fichier(s) trouvé(s)`)
 
@@ -52,7 +52,7 @@ const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promi
     const exists = await fs.access(filePath).then(() => true).catch(() => false)
 
     if (!exists) {
-      const fileUrl = new URL(folderUrl)
+      const fileUrl = new URL(config.url)
       fileUrl.pathname = path.posix.join(parsed.pathname, file)
       await log.info('Téléchargement du fichier ' + fileUrl.pathname)
       // creating empty file before streaming seems to fix some weird bugs with NFS
