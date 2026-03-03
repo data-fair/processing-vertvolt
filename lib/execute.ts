@@ -7,7 +7,7 @@ import { promisify } from 'node:util'
 import path from 'node:path'
 import fs from 'fs-extra'
 import FormData from 'form-data'
-import { downloadFileFTP, downloadFileSFTP, listFilesFTP, listFilesSFTP } from './fetch-utils.ts'
+import { downloadFile, listFiles } from './fetch-utils.ts'
 import datasetSchema from './dataset-schema.ts'
 import process from './process.ts'
 
@@ -24,29 +24,26 @@ export const run = async (context: ProcessingContext<ProcessingConfig>): Promise
   // Upload to Data Fair (unless skipUpload is true)
   if (!context.processingConfig.skipUpload) await upload(context)
   else await context.log.info('Upload ignoré (skipUpload = true)')
-
 }
 
 const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promise<void> => {
-  const config = pluginConfig as PluginConfig;
+  const config = pluginConfig as PluginConfig
 
-  const isSftp = config.protocol === 'sftp'
-  const folder = config.folder ?? '/ftp/Vertvolt'
-
-  const connection = {
-    host: config.host,
-    port: config.port ?? (isSftp ? 22 : 21),
+  const folderUrl = config.url
+  const parsed = new URL(folderUrl)
+  const credentials = {
     username: config.username,
     password: config.password,
     privateKey: config.sshKey
   }
 
-  await log.step(`Téléchargement des fichiers depuis le serveur ${config.protocol.toUpperCase()}`)
-  await log.info(`Hôte : ${connection.host}:${connection.port}, Répertoire : ${folder}`)
+  const protocol = parsed.protocol.replace(':', '').toUpperCase()
+  await log.step(`Téléchargement des fichiers depuis le serveur ${protocol}`)
+  await log.info(`URL : ${folderUrl}`)
 
-  await log.info(`Récupération de la liste des fichiers dans le répertoire ${folder}`)
+  await log.info(`Récupération de la liste des fichiers dans le répertoire ${parsed.pathname}`)
 
-  const fileNames = await (isSftp ? listFilesSFTP : listFilesFTP)(connection, folder)
+  const fileNames = await listFiles(folderUrl, credentials)
 
   await log.info(`${fileNames.length} fichier(s) trouvé(s)`)
 
@@ -55,11 +52,12 @@ const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promi
     const exists = await fs.access(filePath).then(() => true).catch(() => false)
 
     if (!exists) {
-      const remotePath = path.posix.join(folder, file)
-      await log.info('Téléchargement du fichier ' + remotePath)
+      const fileUrl = new URL(folderUrl)
+      fileUrl.pathname = path.posix.join(parsed.pathname, file)
+      await log.info('Téléchargement du fichier ' + fileUrl.pathname)
       // creating empty file before streaming seems to fix some weird bugs with NFS
       await fs.writeFile(filePath + '.tmp', '')
-      await (isSftp ? downloadFileSFTP : downloadFileFTP)(connection, remotePath, filePath + '.tmp')
+      await downloadFile(fileUrl.toString(), credentials, filePath + '.tmp')
 
       // Try to prevent weird bug with NFS by forcing syncing file before reading it
       const fd = await open(filePath + '.tmp', 'r')

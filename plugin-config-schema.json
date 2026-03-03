@@ -2,22 +2,14 @@
   "$id": "https://github.com/data-fair/processing-vertvolt/plugin-config",
   "type": "object",
   "title": "PluginConfig",
-  "required": ["protocol", "host", "username"],
+  "layout": { "title": null },
+  "required": ["url", "username"],
   "properties": {
-    "protocol": {
+    "url": {
       "type": "string",
-      "title": "Protocole",
-      "enum": ["ftp", "sftp"],
-      "default": "ftp"
-    },
-    "host": {
-      "type": "string",
-      "title": "Hôte"
-    },
-    "port": {
-      "type": "number",
-      "title": "Port",
-      "description": "Par défaut 21 pour FTP, 22 pour SFTP"
+      "title": "URL du répertoire",
+      "description": "URL du répertoire distant au format ftp://host:port/chemin ou sftp://host:port/chemin",
+      "examples": ["ftp://ftp.exemple.fr/ftp/Vertvolt", "sftp://sftp.exemple.fr/ftp/Vertvolt"]
     },
     "username": {
       "type": "string",
@@ -41,12 +33,10 @@
     "sshKey": {
       "type": "string",
       "title": "Clé SSH privée (SFTP uniquement)",
-      "layout": "textarea"
-    },
-    "folder": {
-      "type": "string",
-      "title": "Répertoire contenant les fichiers",
-      "default": "/ftp/Vertvolt"
+      "layout": {
+        "comp": "textarea",
+        "if": "parent.data?.url?.startsWith('sftp://')"
+      }
     }
   }
 }

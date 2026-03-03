@@ -11,43 +11,69 @@ export class FileNotFoundError extends Error {
   }
 }
 
-export type SftpConnectionOptions = {
-  host: string
-  port?: number
-  username: string
+export type FtpSftpCredentials = {
+  username?: string
   password?: string
   privateKey?: string
 }
 
-export type FtpConnectionOptions = {
-  host: string
-  port?: number
-  username?: string
-  password?: string
+/**
+ * Download a single file from an FTP or SFTP server to a local path.
+ * URL format: ftp://host:port/path or sftp://host:port/path
+ * Throws FileNotFoundError if the remote file does not exist.
+ */
+export const downloadFile = async (
+  url: string,
+  credentials: FtpSftpCredentials,
+  localPath: string
+): Promise<void> => {
+  const parsed = new URL(url)
+  if (parsed.protocol === 'sftp:') {
+    await downloadFileSFTP(parsed, credentials, localPath)
+  } else if (parsed.protocol === 'ftp:' || parsed.protocol === 'ftps:') {
+    await downloadFileFTP(parsed, credentials, localPath)
+  } else {
+    throw new Error(`Protocole non supporté : ${parsed.protocol}`)
+  }
 }
 
 /**
- * Download a single file from an SFTP server to a local path.
- * Throws FileNotFoundError if the remote file does not exist.
+ * List files in a remote FTP or SFTP directory.
+ * URL format: ftp://host:port/path or sftp://host:port/path
+ * Returns only file names (not directories).
  */
-export const downloadFileSFTP = async (
-  connection: SftpConnectionOptions,
-  remotePath: string,
+export const listFiles = async (
+  url: string,
+  credentials: FtpSftpCredentials
+): Promise<string[]> => {
+  const parsed = new URL(url)
+  if (parsed.protocol === 'sftp:') {
+    return listFilesSFTP(parsed, credentials)
+  } else if (parsed.protocol === 'ftp:' || parsed.protocol === 'ftps:') {
+    return listFilesFTP(parsed, credentials)
+  } else {
+    throw new Error(`Protocole non supporté : ${parsed.protocol}`)
+  }
+}
+
+const downloadFileSFTP = async (
+  url: URL,
+  credentials: FtpSftpCredentials,
   localPath: string
 ): Promise<void> => {
   const sftp = new SFTPClient()
   try {
     await sftp.connect({
-      host: connection.host,
-      port: connection.port,
-      username: connection.username,
-      password: connection.password,
-      privateKey: connection.privateKey
+      host: url.hostname,
+      port: url.port ? Number(url.port) : undefined,
+      username: credentials.username,
+      password: credentials.password,
+      privateKey: credentials.privateKey
     })
-    await sftp.get(remotePath, localPath)
+    await sftp.get(url.pathname, localPath)
   } catch (err: any) {
     if (err.message?.toLowerCase().includes('no such file') || err.code === 'ENOENT') {
-      throw new FileNotFoundError(`File not found: ${remotePath}`)
+      throw new FileNotFoundError(`File not found: ${url.pathname}`)
     }
     throw err
   } finally {
@@ -55,26 +81,22 @@ export const downloadFileSFTP = async (
   }
 }
 
-/**
- * Download a single file from an FTP server to a local path.
- * Throws FileNotFoundError if the remote file does not exist.
- */
-export const downloadFileFTP = async (
-  connection: FtpConnectionOptions,
-  remotePath: string,
+const downloadFileFTP = async (
+  url: URL,
+  credentials: FtpSftpCredentials,
   localPath: string
 ): Promise<void> => {
   const ftp = new FTPClient()
   ftp.connect({
-    host: connection.host,
-    port: connection.port ?? 21,
-    user: connection.username,
-    password: connection.password
+    host: url.hostname,
+    port: url.port ? Number(url.port) : 21,
+    user: credentials.username,
+    password: credentials.password
   })
   await eventPromise(ftp, 'ready')
   try {
     const stream = await new Promise<NodeJS.ReadableStream>((resolve, reject) => {
-      ftp.get(remotePath, (err: Error | null, stream: NodeJS.ReadableStream) => {
+      ftp.get(url.pathname, (err: Error | null, stream: NodeJS.ReadableStream) => {
         if (err) reject(err)
         else resolve(stream)
       })
@@ -82,7 +104,7 @@ export const downloadFileFTP = async (
     await pipeline(stream, createWriteStream(localPath))
   } catch (err: any) {
     if (err.message?.toLowerCase().includes('no such file') || err.message?.toLowerCase().includes('not found')) {
-      throw new FileNotFoundError(`File not found: ${remotePath}`)
+      throw new FileNotFoundError(`File not found: ${url.pathname}`)
     }
     throw err
   } finally {
@@ -90,49 +112,41 @@ export const downloadFileFTP = async (
   }
 }
 
-/**
- * List files in a remote SFTP directory.
- * Returns only file names (not directories).
- */
-export const listFilesSFTP = async (
-  connection: SftpConnectionOptions,
-  folderPath: string
+const listFilesSFTP = async (
+  url: URL,
+  credentials: FtpSftpCredentials
 ): Promise<string[]> => {
   const sftp = new SFTPClient()
   try {
     await sftp.connect({
-      host: connection.host,
-      port: connection.port,
-      username: connection.username,
-      password: connection.password,
-      privateKey: connection.privateKey
+      host: url.hostname,
+      port: url.port ? Number(url.port) : undefined,
+      username: credentials.username,
+      password: credentials.password,
+      privateKey: credentials.privateKey
     })
-    const entries = await sftp.list(folderPath)
+    const entries = await sftp.list(url.pathname)
     return entries.filter(f => f.type !== 'd').map(f => f.name)
   } finally {
     await sftp.end()
   }
 }
 
-/**
- * List files in a remote FTP directory.
- * Returns only file names (not directories).
- */
-export const listFilesFTP = async (
-  connection: FtpConnectionOptions,
-  folderPath: string
+const listFilesFTP = async (
+  url: URL,
+  credentials: FtpSftpCredentials
 ): Promise<string[]> => {
   const ftp = new FTPClient()
   ftp.connect({
-    host: connection.host,
-    port: connection.port ?? 21,
-    user: connection.username,
-    password: connection.password
+    host: url.hostname,
+    port: url.port ? Number(url.port) : 21,
+    user: credentials.username,
+    password: credentials.password
   })
   await eventPromise(ftp, 'ready')
   try {
     const entries = await new Promise<any[]>((resolve, reject) => {
-      ftp.list(folderPath, (err: Error | null, entries: any[]) => {
+      ftp.list(url.pathname, (err: Error | null, entries: any[]) => {
         if (err) reject(err)
         else resolve(entries)
       })
