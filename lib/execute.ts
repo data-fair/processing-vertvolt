@@ -1,24 +1,23 @@
 import type { ProcessingContext } from '@data-fair/lib-common-types/processings.js'
 import type { ProcessingConfig } from '#types/processingConfig/index.ts'
-import type { PluginConfig } from '#types/pluginConfig/index.ts'
 
 import { open } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import fs from 'fs-extra'
 import FormData from 'form-data'
-import { downloadFile, listFiles } from './fetch-utils.ts'
+import { downloadFile, listFiles, type SftpCredentials } from './fetch-utils.ts'
 import datasetSchema from './dataset-schema.ts'
 import process from './process.ts'
 
 /**
  * Main processing execution function.
- * Downloads VertVolt files from FTP, processes XLSX files, and uploads to Data Fair.
+ * Downloads VertVolt files from SFTP, processes XLSX files, and uploads to Data Fair.
  */
 export const run = async (context: ProcessingContext<ProcessingConfig>): Promise<void> => {
   await context.log.step('Démarrage du traitement VertVolt')
 
-  await download(context)      // Download files from FTP
+  await download(context)      // Download files from SFTP
   await process(context)   // Process XLSX files to CSV
 
   // Upload to Data Fair (unless skipUpload is true)
@@ -26,15 +25,19 @@ export const run = async (context: ProcessingContext<ProcessingConfig>): Promise
   else await context.log.info('Upload ignoré (skipUpload = true)')
 }
 
-const download = async ({ pluginConfig, tmpDir, log }: ProcessingContext): Promise<void> => {
-  const config = pluginConfig as PluginConfig
-  if (!config.url) throw new Error('L\'URL du serveur FTP/SFTP doit être fournie dans la configuration du plugin')
+const download = async ({ processingConfig, secrets, tmpDir, log }: ProcessingContext<ProcessingConfig>): Promise<void> => {
+  const config = processingConfig
+  if (!config.url) throw new Error('L\'URL du serveur SFTP doit être fournie dans la configuration du traitement')
 
   const parsed = new URL(config.url)
-  const credentials = {
-    username: config.username,
-    password: config.password,
-    privateKey: config.sshKey
+  const credentials: SftpCredentials = {
+    username: config.username
+  }
+
+  if (config.connectionKey.key === 'password') {
+    credentials.password = secrets?.password ?? config.connectionKey.password
+  } else if (config.connectionKey.key === 'sshKey') {
+    credentials.privateKey = secrets?.sshKey ?? config.connectionKey.sshKey
   }
 
   const protocol = parsed.protocol.replace(':', '').toUpperCase()

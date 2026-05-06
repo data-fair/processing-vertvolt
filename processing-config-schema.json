@@ -53,7 +53,59 @@
     },
     {
       "title": "Paramètres",
+      "required": ["url", "username", "connectionKey"],
       "properties": {
+        "url": {
+          "type": "string",
+          "title": "URL du répertoire",
+          "description": "URL du répertoire distant au format sftp://host:port/chemin",
+          "examples": ["sftp://sftp.exemple.fr/ftp/Vertvolt"]
+        },
+        "username": {
+          "type": "string",
+          "title": "Utilisateur"
+        },
+        "connectionKey": {
+          "type": "object",
+          "title": "Mode de connexion",
+          "description": "Le mode de connexion à utiliser (Mot de passe, clé SSH)",
+          "oneOfLayout": {
+            "label": "Choisir un mode de connexion"
+          },
+          "oneOf": [
+            {
+              "title": "Mot de passe",
+              "required": ["password"],
+              "properties": {
+                "password": {
+                  "type": "string",
+                  "layout": {
+                    "props": {
+                      "type": "password",
+                      "autocomplete": "new-password"
+                    }
+                  }
+                },
+                "key": {
+                  "const": "password"
+                }
+              }
+            },
+            {
+              "title": "Clé SSH",
+              "required": ["sshKey"],
+              "properties": {
+                "sshKey": {
+                  "type": "string",
+                  "layout": "textarea"
+                },
+                "key": {
+                  "const": "sshKey"
+                }
+              }
+            }
+          ]
+        },
         "skipUpload": {
           "title": "Ne pas charger les jeux de données",
           "type": "boolean",

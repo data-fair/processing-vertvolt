@@ -36,7 +36,6 @@
     "@data-fair/lib-types-builder": "^1.11.3",
     "@data-fair/lib-utils": "^1.9.0",
     "@types/fs-extra": "^11.0.4",
-    "@types/ftp": "^0.3.36",
     "@types/node": "^22.10.5",
     "@types/ssh2-sftp-client": "^9.0.6",
     "config": "^4.4.1",
@@ -48,7 +47,6 @@
   },
   "dependencies": {
     "fs-extra": "^11.3.3",
-    "ftp": "^0.3.10",
     "ssh2-sftp-client": "^12.0.1",
     "xlsx": "^0.18.5"
   },
