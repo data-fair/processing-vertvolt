@@ -36,40 +36,44 @@ export default async ({ tmpDir, log }: ProcessingContext): Promise<void> => {
       couverture_demi_horaire_offre: infos[8],
       part_suivi_consommation_offre: infos[9]
     }
+    // Bloc 1 : part_offre
     data.splice(0, 6)
+    const headerRow = data.shift() || []
+    const totalIdx = headerRow.indexOf('Total')
+    const technos: string[] = totalIdx > 0 ? headerRow.slice(1, totalIdx) : headerRow.slice(1, -1)
+    const block1 = data.splice(0, 13)
+    // Bloc 2 : part_sans_soutien_public
+    data.splice(0, 7)
+    data.shift()
+    const block2 = data.splice(0, 13)
+    // Bloc 3 : part_gouvernance_partagee
+    data.splice(0, 5)
+    data.shift()
+    const block3 = data.splice(0, 13)
+
+    // Les 3 blocs alignent toujours les 13 mêmes régions dans le même ordre.
+    // On indexe par position pour résister aux variations de libellé entre blocs
+    // (un fichier ENGIE 2024 contient une annotation parasite sur le nom de région
+    // du bloc 1 qui n'est pas reprise dans les blocs 2 et 3).
     const mwh: Record<string, Record<string, any>> = {}
-    let technos = data.shift()?.slice(1, -1) || []
-    let regions = data.splice(0, 13)
-    for (const regData of regions) {
-      const region = regData.shift()
+    for (let r = 0; r < block1.length; r++) {
+      const regRow1 = block1[r]
+      const region = regRow1?.[0]
       if (!region) continue
       mwh[region] = {}
+      const regRow2 = block2[r] || []
+      const regRow3 = block3[r] || []
       for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]] = { part_offre: regData[i] }
+        mwh[region][technos[i]] = {
+          part_offre: regRow1[i + 1],
+          part_sans_soutien_public: regRow2[i + 1],
+          part_gouvernance_partagee: regRow3[i + 1]
+        }
       }
     }
-    data.splice(0, 7)
-    technos = data.shift()?.slice(1, -1) || []
-    regions = data.splice(0, 13)
-    for (const regData of regions) {
-      const region = regData.shift()
-      if (!region) continue
-      for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]].part_sans_soutien_public = regData[i]
-      }
-    }
-    data.splice(0, 5)
-    technos = data.shift()?.slice(1, -1) || []
-    regions = data.splice(0, 13)
-    for (const regData of regions) {
-      const region = regData.shift()
-      if (!region) continue
-      for (let i = 0; i < technos.length; i++) {
-        mwh[region][technos[i]].part_gouvernance_partagee = regData[i]
-      }
-    }
-    for (const [region, technos] of Object.entries(mwh)) {
-      for (const [technologie, values] of Object.entries(technos)) {
+
+    for (const [region, technosMap] of Object.entries(mwh)) {
+      for (const [technologie, values] of Object.entries(technosMap)) {
         const fields: Record<string, any> = {
           region,
           technologie,
