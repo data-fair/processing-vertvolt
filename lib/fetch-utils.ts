@@ -36,10 +36,11 @@ export const downloadFile = async (
       password: credentials.password,
       privateKey: credentials.privateKey
     })
-    await sftp.get(parsed.pathname, localPath)
+    const remotePath = decodeURIComponent(parsed.pathname)
+    await sftp.get(remotePath, localPath)
   } catch (err: any) {
     if (err.message?.toLowerCase().includes('no such file') || err.code === 'ENOENT') {
-      throw new FileNotFoundError(`File not found: ${parsed.pathname}`)
+      throw new FileNotFoundError(`File not found: ${decodeURIComponent(parsed.pathname)}`)
     }
     throw err
   } finally {
@@ -69,7 +70,7 @@ export const listFiles = async (
       password: credentials.password,
       privateKey: credentials.privateKey
     })
-    const entries = await sftp.list(parsed.pathname)
+    const entries = await sftp.list(decodeURIComponent(parsed.pathname))
     return entries.filter(f => f.type !== 'd').map(f => f.name)
   } finally {
     await sftp.end()
