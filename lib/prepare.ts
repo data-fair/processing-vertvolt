@@ -8,6 +8,7 @@ import type { ProcessingConfig } from '#types/processingConfig/index.ts'
  */
 const prepare: PrepareFunction<ProcessingConfig> = async ({ processingConfig, secrets }) => {
   const connectionKey = processingConfig.connectionKey
+  if (!connectionKey) return { processingConfig, secrets }
 
   if (connectionKey.key === 'password') {
     const password = connectionKey.password
