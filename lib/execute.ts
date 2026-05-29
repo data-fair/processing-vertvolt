@@ -100,7 +100,7 @@ const upload = async ({ processingConfig, processingId, tmpDir, axios, log, patc
     headers: { ...formData.getHeaders(), 'Content-Length': contentLength }
   })
 
-  const { id, title } = res.data.dataset
+  const { id, title } = res.data
   await log.info(isUpdate
     ? `Jeu de donnée mis à jour, id="${id}", title="${title}"`
     : `Jeu de donnée créé, id="${id}", title="${title}"`
