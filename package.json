@@ -49,7 +49,7 @@
     "form-data": "^4.0.5",
     "fs-extra": "^11.3.3",
     "ssh2-sftp-client": "^12.0.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "npm:@stackline/xlsx@^1.0.6"
   },
   "files": [
     "plugin-config-schema.json",
