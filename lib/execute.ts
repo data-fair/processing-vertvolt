@@ -73,8 +73,13 @@ const download = async ({ processingConfig, secrets, tmpDir, log }: ProcessingCo
   }
 }
 
-const upload = async ({ processingConfig, processingId, tmpDir, axios, log, patchConfig }: ProcessingContext<ProcessingConfig>): Promise<void> => {
+export const upload = async ({ processingConfig, processingId, tmpDir, axios, log, patchConfig }: ProcessingContext<ProcessingConfig>): Promise<void> => {
   const isUpdate = processingConfig.datasetMode === 'update'
+  const datasetId = processingConfig.dataset?.id
+
+  if (isUpdate && !datasetId) {
+    throw new Error('Aucun jeu de données à mettre à jour : identifiant manquant dans la configuration.')
+  }
 
   await log.step(isUpdate ? 'Mise à jour du jeu de données' : 'Création du jeu de données')
 
@@ -84,7 +89,7 @@ const upload = async ({ processingConfig, processingId, tmpDir, axios, log, patc
 
   if (!isUpdate) {
     const body = {
-      title: processingConfig.dataset.title || `VertVolt - ${new Date().toISOString()}`,
+      title: processingConfig.dataset?.title || `VertVolt - ${new Date().toISOString()}`,
       schema: datasetSchema,
       extras: { processingId }
     }
@@ -95,7 +100,7 @@ const upload = async ({ processingConfig, processingId, tmpDir, axios, log, patc
 
   const res = await axios({
     method: 'POST',
-    url: `api/v1/datasets/${processingConfig.dataset.id}`,
+    url: isUpdate ? `api/v1/datasets/${datasetId}` : 'api/v1/datasets',
     data: formData,
     headers: { ...formData.getHeaders(), 'Content-Length': contentLength }
   })
