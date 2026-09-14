@@ -1,6 +1,6 @@
 {
   "name": "@data-fair/processing-vertvolt",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Process VertVolt xlsx files to generate a dataset.",
   "main": "index.ts",
   "type": "module",
