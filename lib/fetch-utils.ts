@@ -1,4 +1,6 @@
+import path from 'node:path'
 import SFTPClient from 'ssh2-sftp-client'
+import { resolvePublicAddress } from '@data-fair/lib-node/ssrf.js'
 
 export class FileNotFoundError extends Error {
   constructor (message: string) {
@@ -30,7 +32,8 @@ export const downloadFile = async (
   const sftp = new SFTPClient()
   try {
     await sftp.connect({
-      host: parsed.hostname,
+      // the host is chosen by the user: connect to its checked public address (SSRF protection)
+      host: await resolvePublicAddress(parsed.hostname),
       port: parsed.port ? Number(parsed.port) : undefined,
       username: credentials.username,
       password: credentials.password,
@@ -64,14 +67,16 @@ export const listFiles = async (
   const sftp = new SFTPClient()
   try {
     await sftp.connect({
-      host: parsed.hostname,
+      // the host is chosen by the user: connect to its checked public address (SSRF protection)
+      host: await resolvePublicAddress(parsed.hostname),
       port: parsed.port ? Number(parsed.port) : undefined,
       username: credentials.username,
       password: credentials.password,
       privateKey: credentials.privateKey
     })
     const entries = await sftp.list(decodeURIComponent(parsed.pathname))
-    return entries.filter(f => f.type !== 'd').map(f => f.name)
+    // the names come from the remote server and become local paths: no directory part
+    return entries.filter(f => f.type !== 'd' && f.name === path.basename(f.name)).map(f => f.name)
   } finally {
     await sftp.end()
   }
