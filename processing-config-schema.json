@@ -40,9 +40,9 @@
             },
             "layout": {
               "getItems": {
-                "url": "${context.dataFairUrl}/api/v1/datasets?select=id,title&${context.ownerFilter}&raw=true",
+                "url": "${context.dataFairUrl}/api/v1/datasets?select=id,title&size=50&${context.ownerFilter}&raw=true",
                 "qSearchParam": "q",
-                "itemsResults": "results",
+                "itemsResults": "data.results",
                 "itemTitle": "item.title",
                 "itemKey": "item.id"
               }
